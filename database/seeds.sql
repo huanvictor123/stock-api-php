@@ -21,4 +21,4 @@ INSERT INTO products (category_id, supplier_id, name, unit_price, stock_quantity
 (3, 3, 'Chave Philips Pro',        35.00,  50,10);
 
 INSERT INTO users (name, email, password) VALUES
-('Admin', 'admin@stockapi.com', '$2y$12$placeholderHashAqui');
+('Admin', 'admin@stockapi.com', '$2y$10$I/QOtC5Wayt0K382UnCr2OO3foQfZokAt1pYxsbarzjk1f9lQLd92');
