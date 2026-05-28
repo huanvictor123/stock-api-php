@@ -4,7 +4,11 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
     unzip \
+    git \
     && docker-php-ext-install pdo pdo_mysql zip
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN a2enmod rewrite
 
@@ -17,5 +21,7 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' \
     /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 COPY . /var/www/html/
+
+RUN cd /var/www/html && composer install --no-interaction --no-dev
 
 EXPOSE 80

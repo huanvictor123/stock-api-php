@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../vendor/autoload.php';
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -10,4 +12,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-echo json_encode(['message' => 'Stock API is running', 'version' => '1.0.0']);
+require_once __DIR__ . '/routes/api.php';

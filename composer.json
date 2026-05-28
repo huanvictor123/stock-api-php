@@ -1,0 +1,17 @@
+{
+  "name": "huanvictor123/stock-api-php",
+  "description": "RESTful API for inventory and sales management",
+  "type": "project",
+  "require": {
+    "php": ">=8.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Config\\":      "src/config/",
+      "Controllers\\": "src/controllers/",
+      "Models\\":      "src/models/",
+      "Middleware\\":  "src/middleware/",
+      "Helpers\\":     "src/helpers/"
+    }
+  }
+}
