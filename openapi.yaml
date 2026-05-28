@@ -1,0 +1,326 @@
+openapi: 3.0.3
+info:
+  title: Stock API
+  description: API RESTful de gestão de estoque e vendas — PHP 8.2, MySQL 8, Docker
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local development
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        success: { type: boolean, example: false }
+        message: { type: string }
+
+    Product:
+      type: object
+      properties:
+        id: { type: integer }
+        category_id: { type: integer }
+        supplier_id: { type: integer }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        unit_price: { type: number, format: float }
+        stock_quantity: { type: integer }
+        min_stock: { type: integer }
+        category_name: { type: string }
+        supplier_name: { type: string }
+
+    Category:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: string, nullable: true }
+
+    Sale:
+      type: object
+      properties:
+        id: { type: integer }
+        customer_name: { type: string }
+        customer_email: { type: string, nullable: true }
+        total_amount: { type: string }
+        status: { type: string }
+        items: { type: array, items: { $ref: '#/components/schemas/SaleItem' } }
+
+    SaleItem:
+      type: object
+      properties:
+        product_id: { type: integer }
+        product_name: { type: string }
+        quantity: { type: integer }
+        price_at_sale: { type: string }
+        subtotal: { type: string }
+
+    LoginRequest:
+      type: object
+      properties:
+        email: { type: string, example: admin@stockapi.com }
+        password: { type: string, example: admin123 }
+
+    ProductInput:
+      type: object
+      properties:
+        name: { type: string, example: Headset Gamer }
+        description: { type: string, example: Headset USB com microfone }
+        category_id: { type: integer, example: 1 }
+        supplier_id: { type: integer, example: 1 }
+        unit_price: { type: number, example: 199.90 }
+        stock_quantity: { type: integer, example: 20 }
+        min_stock: { type: integer, example: 5 }
+
+    SaleInput:
+      type: object
+      properties:
+        customer_name: { type: string, example: Maria Oliveira }
+        customer_email: { type: string, example: maria@email.com }
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id: { type: integer, example: 1 }
+              quantity: { type: integer, example: 2 }
+
+paths:
+  /auth/login:
+    post:
+      tags: [Autenticação]
+      summary: Login — retorna token JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login realizado com sucesso
+        '400':
+          description: Email e senha obrigatórios
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /products:
+    get:
+      tags: [Produtos]
+      summary: Listar todos os produtos
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Lista de produtos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+    post:
+      tags: [Produtos]
+      summary: Criar novo produto
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '201':
+          description: Produto criado
+        '422':
+          description: Erro de validação
+
+  '/products/{id}':
+    get:
+      tags: [Produtos]
+      summary: Buscar produto por ID
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Dados do produto
+        '404':
+          description: Produto não encontrado
+    put:
+      tags: [Produtos]
+      summary: Atualizar produto
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '200':
+          description: Produto atualizado
+        '404':
+          description: Produto não encontrado
+    delete:
+      tags: [Produtos]
+      summary: Deletar produto
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Produto deletado
+        '404':
+          description: Produto não encontrado
+
+  /categories:
+    get:
+      tags: [Categorias]
+      summary: Listar todas as categorias
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Lista de categorias
+    post:
+      tags: [Categorias]
+      summary: Criar categoria
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+      responses:
+        '201':
+          description: Categoria criada
+
+  '/categories/{id}':
+    get:
+      tags: [Categorias]
+      summary: Buscar categoria por ID
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Dados da categoria
+        '404':
+          description: Categoria não encontrada
+    delete:
+      tags: [Categorias]
+      summary: Deletar categoria
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Categoria deletada
+        '404':
+          description: Categoria não encontrada
+        '409':
+          description: Categoria possui produtos vinculados
+
+  /sales:
+    post:
+      tags: [Vendas]
+      summary: Criar venda (com transação ACID)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaleInput'
+      responses:
+        '201':
+          description: Venda criada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    $ref: '#/components/schemas/Sale'
+        '422':
+          description: Estoque insuficiente ou validação falhou
+
+  '/sales/{id}':
+    get:
+      tags: [Vendas]
+      summary: Buscar venda por ID
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Dados da venda com itens
+        '404':
+          description: Venda não encontrada
+
+  /reports/low-stock:
+    get:
+      tags: [Relatórios]
+      summary: Produtos com estoque abaixo do mínimo
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Lista de produtos com estoque crítico
+
+  /reports/sales-summary:
+    get:
+      tags: [Relatórios]
+      summary: Resumo de vendas do período
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: start
+          in: query
+          schema: { type: string, format: date, example: '2026-01-01' }
+        - name: end
+          in: query
+          schema: { type: string, format: date, example: '2026-12-31' }
+      responses:
+        '200':
+          description: Resumo com total, média, mínimo e máximo
