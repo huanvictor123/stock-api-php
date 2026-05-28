@@ -60,6 +60,7 @@ docker compose up -d
 ```
 
 A API estará disponível em **http://localhost:8080**
+A documentação interativa (Swagger UI) em **http://localhost:8081**
 
 ```bash
 # Verificar se está rodando
