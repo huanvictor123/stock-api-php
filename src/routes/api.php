@@ -2,6 +2,7 @@
 
 use Controllers\ProductController;
 use Controllers\CategoryController;
+use Controllers\SaleController;
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
@@ -41,6 +42,20 @@ if (preg_match('#^/categories/?$#', $uri)) {
         $controller->show($id);
     } elseif ($method === 'DELETE') {
         $controller->destroy($id);
+    }
+}
+
+// Sales
+if (preg_match('#^/sales/?$#', $uri)) {
+    $controller = new SaleController();
+    if ($method === 'POST') {
+        $controller->store();
+    }
+} elseif (preg_match('#^/sales/(\d+)$#', $uri, $matches)) {
+    $controller = new SaleController();
+    $id = (int) $matches[1];
+    if ($method === 'GET') {
+        $controller->show($id);
     }
 }
 
